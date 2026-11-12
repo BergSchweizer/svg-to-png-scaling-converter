@@ -26,11 +26,10 @@ The entire application runs locally in the browser. No files need to be uploaded
 
 ### Why was this project created?
 
-SVG files are resolution-independent vector graphics. This makes them ideal for logos, icons, illustrations and other scalable graphics.
-But to convert to SVG? Most online converters convert to a low resolution pixel-like image. Which is no what i need. So i created this project.
+SVG files are resolution-independent vector graphics.
+They can be scaled without losing quality.
 
-Many online converters export SVG files at the original low resolution, resulting in blurry, pixelated PNG images that are often unsuitable for further use.
-
+However, many online converters export SVG files at a very low pixel resolution, resulting in blurry or pixelated PNG images that are often unsuitable for further use.
 However, many applications, platforms and workflows require PNG files instead.
 
 A simple conversion is often not enough. Users may also need to:
@@ -42,9 +41,11 @@ A simple conversion is often not enough. Users may also need to:
 - Prepare it for specific formats such as A4, 16:9 or 9:16.
 - Export it at a defined pixel resolution.
 
+That was the main reason I decided to create this tool.
+
 This project brings these functions together in one small, easy-to-use tool.
 
-This project and this readme-file got createt using Chat-GPT und GitHub-Copilot (ChatGPT based)
+This project and its README were created with assistance from ChatGPT and GitHub Copilot.
 
 
 ### Which problem does it solve?
@@ -356,10 +357,11 @@ The resulting dimensions are used to determine the initial canvas size and aspec
 The current implementation consists of one self-contained file:
 
 ```text
-svgconverter/
+svg-to-png-scaling-converter/
 │
 ├── svgconverter.html
-└── README.md
+├── README.md
+└── LICENSE
 ```
 
 HTML, CSS, JavaScript and the translation dictionaries are contained in the HTML file.
@@ -753,10 +755,11 @@ Die ermittelten Werte dienen als Grundlage für die initiale Canvas-Größe und 
 Die aktuelle Version besteht aus einer einzigen eigenständigen HTML-Datei:
 
 ```text
-svgconverter/
+svg-to-png-scaling-converter/
 │
 ├── svgconverter.html
-└── README.md
+├── README.md
+└── LICENSE
 ```
 
 HTML, CSS, JavaScript und die Sprachdefinitionen befinden sich gemeinsam in dieser Datei.
