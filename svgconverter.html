@@ -1,0 +1,1915 @@
+<!--
+  SVG to PNG scaling Converter
+  Copyright (c) 2026 BergSchweizer
+
+  Licensed under the Custom Usage License.
+  See the LICENSE file in the project root for details.
+
+  Redistribution, publication, integration into other projects,
+  and commercial use require prior written permission.
+-->
+
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title id="pageTitle" data-i18n="pageTitle">
+Offline SVG to PNG scaling Converter
+</title>
+
+
+<style>
+
+:root {
+
+--bg:#202020;
+--panel:#303030;
+--text:#eeeeee;
+--border:#666;
+
+}
+
+
+body.light {
+
+--bg:#eeeeee;
+--panel:#ffffff;
+--text:#111111;
+--border:#aaa;
+
+}
+
+
+body.dark {
+
+--bg:#202020;
+--panel:#303030;
+--text:#eeeeee;
+--border:#666;
+
+}
+
+
+
+body {
+
+margin:0;
+
+height:100vh;
+
+overflow:hidden;
+
+font-family:Arial,sans-serif;
+
+background:var(--bg);
+
+color:var(--text);
+
+}
+
+
+
+#app {
+
+display:flex;
+
+height:100vh;
+
+}
+
+
+
+#controls {
+
+width:25%;
+
+min-width:340px;
+
+padding:15px;
+
+overflow-y:auto;
+
+background:var(--panel);
+
+border-right:1px solid var(--border);
+
+}
+
+
+
+#previewArea {
+
+flex:1;
+
+display:flex;
+
+flex-direction:column;
+
+}
+
+
+
+#previewTitle {
+
+padding:10px;
+
+background:var(--panel);
+
+}
+
+
+
+#preview {
+
+flex:1;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+overflow:hidden;
+
+}
+
+
+
+canvas {
+
+max-width:95%;
+
+max-height:95%;
+
+border:1px solid #888;
+
+}
+
+
+
+.box {
+
+background:rgba(120,120,120,.15);
+
+border-radius:8px;
+
+padding:12px;
+
+margin-bottom:12px;
+
+}
+
+
+
+h2 {
+
+margin-top:0;
+padding-bottom:10px;
+border-bottom:1px solid var(--border);
+
+}
+
+
+
+h3 {
+
+font-size:15px;
+
+margin-top:0;
+
+}
+
+.settingsRow {
+
+display:flex;
+
+gap:12px;
+
+}
+
+.settingsColumn {
+
+flex:1;
+
+min-width:0;
+
+}
+
+.settingsColumn h3 {
+
+margin-bottom:5px;
+
+}
+
+.settingsColumn select {
+
+box-sizing:border-box;
+
+}
+
+
+input,
+select,
+button {
+
+box-sizing:border-box;
+
+width:100%;
+
+padding:7px;
+
+margin-top:5px;
+
+}
+
+
+
+button {
+
+cursor:pointer;
+
+}
+
+
+
+button.small {
+
+width:40px;
+
+}
+
+
+
+.row {
+
+display:flex;
+
+gap:8px;
+
+align-items:center;
+
+}
+
+
+
+.row>* {
+
+flex:1;
+
+}
+
+
+
+.fileRow {
+
+display:flex;
+
+gap:5px;
+
+}
+
+
+
+.fileRow input {
+
+flex:1;
+
+}
+
+
+
+.fileRow button {
+
+width:40px;
+
+}
+
+
+
+.sliderValue {
+
+text-align:center;
+
+}
+
+
+
+.smallText {
+
+font-size:12px;
+
+opacity:.7;
+
+}
+
+
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div id="app">
+
+
+<div id="controls">
+
+
+
+<h2 data-i18n="appTitle">
+Offline SVG to PNG scaling Converter
+</h2>
+
+
+<div class="box" id="appearanceSettings">
+
+<h3 data-i18n="settingsHeading">Einstellungen</h3>
+
+<div class="settingsRow">
+
+<div class="settingsColumn">
+<h3 data-i18n="languageHeading">Sprache (DE/EN)</h3>
+<select id="language" aria-label="Sprache" data-i18n-aria="languageHeading">
+<option value="de">Deutsch</option>
+<option value="en">English</option>
+</select>
+</div>
+
+<div class="settingsColumn">
+<h3 data-i18n="appearanceHeading">Darstellung</h3>
+<select id="theme" aria-label="Darstellung" data-i18n-aria="appearanceHeading">
+<option value="system" data-i18n="system">System</option>
+<option value="light" data-i18n="light">Hell</option>
+<option value="dark" data-i18n="dark">Dunkel</option>
+</select>
+</div>
+
+</div>
+
+</div>
+
+
+
+
+<div class="box">
+
+<h3 data-i18n="svgFile">SVG-Datei</h3>
+
+
+<div class="fileRow">
+
+<input 
+type="file"
+id="svgInput"
+accept=".svg"
+aria-label="SVG-Datei auswählen"
+data-i18n-aria="chooseSvg"
+>
+
+
+<button id="removeSVG" aria-label="SVG entfernen" data-i18n-aria="removeSvg">
+X
+</button>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<div class="box">
+
+
+<h3 data-i18n="background">Hintergrund</h3>
+
+
+<div class="fileRow">
+
+<input
+type="file"
+id="bgInput"
+accept="image/*"
+aria-label="Hintergrundbild auswählen"
+data-i18n-aria="chooseBackground"
+>
+
+
+<button id="removeBG" aria-label="Hintergrundbild entfernen" data-i18n-aria="removeBackground">
+X
+</button>
+
+
+</div>
+
+
+<select id="backgroundMode">
+
+<option value="transparent" data-i18n="transparent">Transparent</option>
+
+<option value="white" data-i18n="white">Weiß</option>
+
+<option value="image" data-i18n="image">Bild</option>
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="box">
+
+
+<h3 data-i18n="templateHeading">Vorlage / Seitenverhältnis</h3>
+
+
+<select id="template">
+
+<option value="original" data-i18n="original">Original</option>
+
+
+<option value="a4portrait" data-i18n="a4Portrait">DIN A4 Hochformat</option>
+
+
+<option value="a4landscape" data-i18n="a4Landscape">DIN A4 Querformat</option>
+
+
+<option value="16x9" data-i18n="ratio16x9">16:9 Querformat</option>
+
+<option value="9x16" data-i18n="ratio9x16">9:16 Hochformat</option>
+
+<option value="3x4portrait" data-i18n="ratio3x4Portrait">3:4 Hochformat</option>
+
+<option value="3x4landscape" data-i18n="ratio3x4Landscape">3:4 Querformat</option>
+
+
+</select>
+
+
+<div class="row">
+
+
+<input 
+id="widthInput"
+type="number"
+placeholder="Breite"
+data-i18n-placeholder="width"
+>
+
+
+<input
+id="heightInput"
+type="number"
+placeholder="Höhe"
+data-i18n-placeholder="height"
+>
+
+
+</div>
+
+
+<label>
+
+<input
+type="checkbox"
+id="lockRatio"
+checked
+>
+
+<span data-i18n="lockRatio">Seitenverhältnis sperren</span>
+
+</label>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="box">
+
+
+<h3 data-i18n="svgLayer">SVG-Ebene</h3>
+
+
+
+<span data-i18n="scale">Skalierung</span>
+
+
+<input
+type="range"
+id="scale"
+min="1"
+max="100"
+step="1"
+value="1"
+>
+
+<div class="sliderValue">
+
+<span id="scaleValue">
+1
+</span>
+×
+
+</div>
+
+
+
+<span data-i18n="positionX">Position X</span>
+
+
+<input
+type="range"
+id="posXSlider"
+min="-2000"
+max="2000"
+step="1"
+value="0"
+>
+
+<div class="row">
+
+<input
+type="number"
+id="posX"
+value="0"
+>
+
+<span class="sliderValue" id="posXLabel">0</span>
+
+</div>
+
+
+
+<span data-i18n="positionY">Position Y</span>
+
+
+<input
+type="range"
+id="posYSlider"
+min="-2000"
+max="2000"
+step="1"
+value="0"
+>
+
+<div class="row">
+
+<input
+type="number"
+id="posY"
+value="0"
+>
+
+<span class="sliderValue" id="posYLabel">0</span>
+
+</div>
+
+
+<span data-i18n="alignment">Ausrichtung</span>
+
+
+<select id="align">
+
+<option value="left" data-i18n="left">Links</option>
+
+
+<option value="center" selected data-i18n="centered">Zentriert</option>
+
+
+<option value="right" data-i18n="right">Rechts</option>
+
+
+</select>
+
+
+<span data-i18n="verticalAlignment">Vertikale Ausrichtung</span>
+
+
+<select id="verticalAlign">
+
+<option value="top" data-i18n="top">Oben</option>
+
+
+<option value="center" selected data-i18n="centered">Zentriert</option>
+
+
+<option value="bottom" data-i18n="bottom">Unten</option>
+
+
+</select>
+
+
+</div>
+
+
+
+
+
+
+
+<div class="box">
+
+
+<button id="reset" data-i18n="reset">Einstellungen zurücksetzen</button>
+
+<button id="saveCanvas" data-i18n="save">Speichern</button>
+
+
+</div>
+
+
+
+
+
+
+<div class="box">
+
+
+<div id="status">
+
+<span data-i18n="statusInitial">Keine SVG geladen</span>
+
+</div>
+
+
+<div class="smallText" data-i18n="saveHint">
+
+Rechtsklick auf Vorschau → Grafik speichern unter
+
+</div>
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+
+
+
+
+
+<div id="previewArea">
+
+
+<div id="previewTitle">
+
+<span data-i18n="preview">Vorschau</span>
+
+</div>
+
+
+<div id="preview">
+
+
+<canvas id="canvas"></canvas>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+</div>
+
+
+
+<!-- TEIL 2 HIER EINFÜGEN -->
+<script>
+
+
+let svgImage=null;
+let bgImage=null;
+
+let svgRatio=1;
+let svgWidth=0;
+let svgHeight=0;
+
+let scale=1;
+
+let posX=0;
+let posY=0;
+
+let canvasW=1000;
+let canvasH=1000;
+
+
+const canvas =
+document.getElementById("canvas");
+
+const ctx =
+canvas.getContext("2d");
+
+
+
+const svgInput =
+document.getElementById("svgInput");
+
+const bgInput =
+document.getElementById("bgInput");
+
+
+const removeSVG =
+document.getElementById("removeSVG");
+
+const removeBG =
+document.getElementById("removeBG");
+
+
+const template =
+document.getElementById("template");
+
+
+const widthInput =
+document.getElementById("widthInput");
+
+const heightInput =
+document.getElementById("heightInput");
+
+
+const lockRatio =
+document.getElementById("lockRatio");
+
+
+const scaleSlider =
+document.getElementById("scale");
+
+
+const scaleValue =
+document.getElementById("scaleValue");
+
+
+const posXSlider =
+	document.getElementById("posXSlider");
+
+
+const posXInput =
+	document.getElementById("posX");
+
+
+const posXLabel =
+	document.getElementById("posXLabel");
+
+
+const posYSlider =
+	document.getElementById("posYSlider");
+
+
+const posYInput =
+	document.getElementById("posY");
+
+
+const posYLabel =
+	document.getElementById("posYLabel");
+
+
+const align =
+	document.getElementById("align");
+
+
+const verticalAlign =
+	document.getElementById("verticalAlign");
+
+
+const saveCanvasButton =
+	document.getElementById("saveCanvas");
+
+
+const backgroundMode =
+document.getElementById("backgroundMode");
+
+
+const status =
+document.getElementById("status");
+
+
+let updating=false;
+
+
+const language =
+document.getElementById("language");
+
+const translations = {
+    de: {
+        pageTitle: "Offline SVG to PNG scaling Converter",
+        appTitle: "Offline SVG to PNG scaling Converter",
+        settingsHeading: "Einstellungen",
+        languageHeading: "Sprache (DE/EN)",
+        appearanceHeading: "Darstellung",
+        system: "System",
+        light: "Hell",
+        dark: "Dunkel",
+        svgFile: "SVG-Datei",
+        chooseSvg: "SVG-Datei auswählen",
+        removeSvg: "SVG entfernen",
+        background: "Hintergrund",
+        chooseBackground: "Hintergrundbild auswählen",
+        removeBackground: "Hintergrundbild entfernen",
+        transparent: "Transparent",
+        white: "Weiß",
+        image: "Bild",
+        templateHeading: "Vorlage / Seitenverhältnis",
+        original: "Original",
+        a4Portrait: "DIN A4 Hochformat",
+        a4Landscape: "DIN A4 Querformat",
+        ratio16x9: "16:9 Querformat",
+        ratio9x16: "9:16 Hochformat",
+        ratio3x4Portrait: "3:4 Hochformat",
+        ratio3x4Landscape: "3:4 Querformat",
+        width: "Breite",
+        height: "Höhe",
+        lockRatio: "Seitenverhältnis sperren",
+        svgLayer: "SVG-Ebene",
+        scale: "Skalierung",
+        positionX: "Position X",
+        positionY: "Position Y",
+        alignment: "Ausrichtung",
+        left: "Links",
+        centered: "Zentriert",
+        right: "Rechts",
+        verticalAlignment: "Vertikale Ausrichtung",
+        top: "Oben",
+        bottom: "Unten",
+        reset: "Einstellungen zurücksetzen",
+        save: "Speichern",
+        statusInitial: "Keine SVG geladen",
+        saveHint: "Rechtsklick auf Vorschau → Grafik speichern unter",
+        preview: "Vorschau"
+    },
+    en: {
+        pageTitle: "Offline SVG to PNG Scaling Converter",
+        appTitle: "Offline SVG to PNG Scaling Converter",
+        settingsHeading: "Settings",
+        languageHeading: "Language (DE/EN)",
+        appearanceHeading: "Appearance",
+        system: "System",
+        light: "Light",
+        dark: "Dark",
+        svgFile: "SVG file",
+        chooseSvg: "Choose SVG file",
+        removeSvg: "Remove SVG",
+        background: "Background",
+        chooseBackground: "Choose background image",
+        removeBackground: "Remove background image",
+        transparent: "Transparent",
+        white: "White",
+        image: "Image",
+        templateHeading: "Template / aspect ratio",
+        original: "Original",
+        a4Portrait: "A4 portrait",
+        a4Landscape: "A4 landscape",
+        ratio16x9: "16:9 landscape",
+        ratio9x16: "9:16 portrait",
+        ratio3x4Portrait: "3:4 portrait",
+        ratio3x4Landscape: "3:4 landscape",
+        width: "Width",
+        height: "Height",
+        lockRatio: "Lock aspect ratio",
+        svgLayer: "SVG layer",
+        scale: "Scale",
+        positionX: "Position X",
+        positionY: "Position Y",
+        alignment: "Horizontal alignment",
+        left: "Left",
+        centered: "Center",
+        right: "Right",
+        verticalAlignment: "Vertical alignment",
+        top: "Top",
+        bottom: "Bottom",
+        reset: "Reset settings",
+        save: "Save",
+        statusInitial: "No SVG loaded",
+        saveHint: "Right-click the preview → Save image as",
+        preview: "Preview"
+    }
+};
+
+function applyLanguage(){
+
+    const selectedLanguage = language.value;
+    const dictionary = translations[selectedLanguage];
+
+    document.documentElement.lang = selectedLanguage;
+
+    document.querySelectorAll("[data-i18n]").forEach(element=>{
+        element.textContent =
+        dictionary[element.dataset.i18n];
+    });
+
+    document.querySelectorAll("[data-i18n-placeholder]").forEach(element=>{
+        element.placeholder =
+        dictionary[element.dataset.i18nPlaceholder];
+    });
+
+    document.querySelectorAll("[data-i18n-aria]").forEach(element=>{
+        element.setAttribute(
+            "aria-label",
+            dictionary[element.dataset.i18nAria]
+        );
+    });
+
+}
+
+language.onchange = applyLanguage;
+applyLanguage();
+
+
+
+/*
+ Theme
+*/
+
+
+const theme =
+document.getElementById("theme");
+
+
+
+function applyTheme(){
+
+
+    document.body.className="";
+
+
+    if(theme.value==="light"){
+
+        document.body.classList.add("light");
+
+    }
+
+
+    if(theme.value==="dark"){
+
+        document.body.classList.add("dark");
+
+    }
+
+
+    if(theme.value==="system"){
+
+
+        if(
+        window.matchMedia(
+        "(prefers-color-scheme: dark)"
+        ).matches
+        ){
+
+            document.body.classList.add("dark");
+
+        }
+        else {
+
+            document.body.classList.add("light");
+
+        }
+
+    }
+
+
+}
+
+
+
+theme.onchange=applyTheme;
+
+
+window
+.matchMedia(
+"(prefers-color-scheme: dark)"
+)
+.addEventListener(
+"change",
+()=>{
+
+    if(theme.value==="system")
+        applyTheme();
+
+});
+
+
+
+applyTheme();
+
+
+
+
+
+
+
+
+
+/*
+ SVG laden
+*/
+
+
+svgInput.onchange=function(){
+
+
+    let file=this.files[0];
+
+    if(!file)return;
+
+
+
+    let reader =
+    new FileReader();
+
+
+    reader.onload=function(e){
+
+        const svgText = e.target.result;
+
+        const dimensionMatch = parseSvgDimensions(svgText);
+
+        svgWidth = dimensionMatch && dimensionMatch.w ? dimensionMatch.w : 0;
+
+        svgHeight = dimensionMatch && dimensionMatch.h ? dimensionMatch.h : 0;
+
+        let blob =
+        new Blob(
+        [svgText],
+        {
+            type:"image/svg+xml"
+        });
+
+        let url =
+        URL.createObjectURL(blob);
+
+        svgImage =
+        new Image();
+
+        svgImage.onload=function(){
+
+            const naturalW =
+            svgImage.naturalWidth || svgWidth || 1000;
+
+            const naturalH =
+            svgImage.naturalHeight || svgHeight || 1000;
+
+            svgRatio =
+            naturalW / naturalH;
+
+            if(template.value==="original"){
+
+                canvasW =
+                naturalW;
+
+                canvasH =
+                naturalH;
+
+                updateSize();
+
+            }
+
+            render();
+
+        };
+
+        svgImage.src=url;
+
+    };
+
+
+    reader.readAsText(file);
+
+
+};
+
+
+
+
+
+
+
+
+/*
+ Hintergrund laden
+*/
+
+
+bgInput.onchange=function(){
+
+
+    let file=this.files[0];
+
+    if(!file)return;
+
+
+    let img =
+    new Image();
+
+
+    img.onload=function(){
+
+        bgImage=img;
+
+        backgroundMode.value="image";
+
+        render();
+
+    };
+
+
+    img.src =
+    URL.createObjectURL(file);
+
+};
+
+
+
+
+
+
+
+
+
+/*
+ Entfernen
+*/
+
+
+removeSVG.onclick=function(){
+
+    svgImage=null;
+
+    svgInput.value="";
+
+    render();
+
+};
+
+
+
+removeBG.onclick=function(){
+
+    bgImage=null;
+
+    bgInput.value="";
+
+    if(backgroundMode.value==="image")
+        backgroundMode.value="transparent";
+
+
+    render();
+
+};
+
+
+
+
+
+
+
+
+
+/*
+ Vorlage
+*/
+
+
+template.onchange=function(){
+
+
+    switch(this.value){
+
+
+        case "a4portrait":
+
+            canvasW=2480;
+            canvasH=3508;
+
+        break;
+
+
+        case "a4landscape":
+
+            canvasW=3508;
+            canvasH=2480;
+
+        break;
+
+
+        case "16x9":
+
+            canvasW=1920;
+            canvasH=1080;
+
+        break;
+
+        case "9x16":
+
+            canvasW=1080;
+            canvasH=1920;
+
+        break;
+
+        case "3x4portrait":
+
+            canvasW=1440;
+            canvasH=1920;
+
+        break;
+
+        case "3x4landscape":
+
+            canvasW=1920;
+            canvasH=1440;
+
+        break;
+
+
+        case "original":
+
+            if(svgImage){
+
+                const naturalW =
+                svgImage.naturalWidth || svgWidth || 1000;
+
+                const naturalH =
+                svgImage.naturalHeight || svgHeight || 1000;
+
+                canvasW = naturalW * scale;
+
+                canvasH = naturalH * scale;
+
+            }
+
+        break;
+
+
+    }
+
+
+    updateSize();
+
+    render();
+
+
+};
+
+
+
+
+
+
+
+
+
+/*
+ Größe
+*/
+
+
+widthInput.oninput=function(){
+
+
+    if(updating)return;
+
+
+    canvasW =
+    Number(this.value)||1;
+
+
+    if(lockRatio.checked){
+
+        updating=true;
+
+        canvasH =
+        Math.round(
+        canvasW /
+        (canvasW/canvasH)
+        );
+
+
+        updateSize();
+
+
+        updating=false;
+
+    }
+
+
+    render();
+
+};
+
+
+
+heightInput.oninput=function(){
+
+
+    if(updating)return;
+
+
+    canvasH =
+    Number(this.value)||1;
+
+
+    render();
+
+
+};
+
+
+
+
+
+lockRatio.onchange=function(){
+
+    render();
+
+};
+
+
+
+
+
+
+function clamp(value, min, max){
+
+    return Math.min(
+    Math.max(value, min),
+    max
+    );
+
+}
+
+
+function updatePositionRange(){
+
+    posXSlider.min = -canvasW;
+
+    posXSlider.max = canvasW;
+
+    posYSlider.min = -canvasH;
+
+    posYSlider.max = canvasH;
+
+}
+
+
+function updatePositionLabels(){
+
+    posXLabel.innerText = posX;
+
+    posYLabel.innerText = posY;
+
+}
+
+
+function updateSize(){
+
+    widthInput.value=
+    Math.round(canvasW);
+
+    heightInput.value=
+    Math.round(canvasH);
+
+    updatePositionRange();
+
+    posX = clamp(
+    posX,
+    Number(posXSlider.min),
+    Number(posXSlider.max)
+    );
+
+    posY = clamp(
+    posY,
+    Number(posYSlider.min),
+    Number(posYSlider.max)
+    );
+
+    posXInput.value = posX;
+
+    posXSlider.value = posX;
+
+    posYInput.value = posY;
+
+    posYSlider.value = posY;
+
+    updatePositionLabels();
+
+}
+
+
+function updateCanvasSizeForOriginal(){
+
+    if(template.value !== "original" || !svgImage) return;
+
+    const naturalW =
+    svgImage.naturalWidth || svgWidth || 1000;
+
+    const naturalH =
+    svgImage.naturalHeight || svgHeight || 1000;
+
+    canvasW = naturalW * scale;
+
+    canvasH = naturalH * scale;
+
+    updateSize();
+
+}
+
+
+function parseSvgDimensions(svgText){
+
+    const viewBoxMatch = svgText.match(/viewBox\s*=\s*"([^"]+)"/i) || svgText.match(/viewBox\s*=\s*'([^']+)'/i);
+
+    if(viewBoxMatch){
+
+        const parts = viewBoxMatch[1]
+        .trim()
+        .split(/[\s,]+/)
+        .map(Number);
+
+        if(parts.length===4 && !parts.some(isNaN)){
+
+            return { w: parts[2], h: parts[3] };
+
+        }
+
+    }
+
+    const widthMatch = svgText.match(/width\s*=\s*"([^"]+)"/i) || svgText.match(/width\s*=\s*'([^']+)'/i);
+    const heightMatch = svgText.match(/height\s*=\s*"([^"]+)"/i) || svgText.match(/height\s*=\s*'([^']+)'/i);
+
+    if(widthMatch && heightMatch){
+
+        const w = parseFloat(widthMatch[1]);
+        const h = parseFloat(heightMatch[1]);
+
+        if(!isNaN(w) && !isNaN(h)){
+
+            return { w, h };
+
+        }
+
+    }
+
+    return null;
+
+}
+
+
+
+
+
+
+
+
+
+/*
+ SVG Layer
+*/
+
+
+scaleSlider.oninput=function(){
+
+
+    scale =
+    Number(this.value);
+
+
+    scaleValue.innerHTML=
+    scale;
+
+
+    updateCanvasSizeForOriginal();
+
+    render();
+
+};
+
+
+
+
+posXSlider.oninput=function(){
+
+    posX=
+    Number(this.value)||0;
+
+    posXInput.value = posX;
+
+    posXLabel.innerText = posX;
+
+    render();
+
+};
+
+
+posXInput.oninput=function(){
+
+    posX=
+    Number(this.value)||0;
+
+    posXSlider.value = posX;
+
+    posXLabel.innerText = posX;
+
+    render();
+
+};
+
+
+posYSlider.oninput=function(){
+
+    posY=
+    Number(this.value)||0;
+
+    posYInput.value = posY;
+
+    posYLabel.innerText = posY;
+
+    render();
+
+};
+
+
+posYInput.oninput=function(){
+
+    posY=
+    Number(this.value)||0;
+
+    posYSlider.value = posY;
+
+    posYLabel.innerText = posY;
+
+    render();
+
+};
+
+
+align.onchange=function(){
+
+    render();
+
+};
+
+
+verticalAlign.onchange=function(){
+
+    render();
+
+};
+
+
+function attachHoverScroll(element){
+
+    element.addEventListener(
+    "wheel",
+    function(e){
+
+        e.preventDefault();
+
+        let delta =
+        e.deltaY < 0 ? 1 : -1;
+
+        if(element.type === "number" || element.type === "range"){
+
+            let step =
+            Number(element.step) || 1;
+
+            let value =
+            Number(element.value) || 0;
+
+            element.value =
+            value + delta * step;
+
+            element.dispatchEvent(
+            new Event("input", { bubbles: true })
+            );
+
+        } else if(element.tagName === "SELECT"){
+
+            let idx =
+            element.selectedIndex + delta;
+
+            idx = Math.min(
+            Math.max(idx, 0),
+            element.options.length - 1
+            );
+
+            if(idx !== element.selectedIndex){
+
+                element.selectedIndex = idx;
+
+                element.dispatchEvent(
+                new Event("change", { bubbles: true })
+                );
+
+            }
+
+        }
+
+    },
+    { passive: false }
+    );
+
+}
+
+
+[scaleSlider, posXSlider, posXInput, posYSlider, posYInput, widthInput, heightInput, align, verticalAlign, template, backgroundMode, theme].forEach(
+    attachHoverScroll
+);
+
+
+saveCanvasButton.onclick=function(){
+
+    const link =
+    document.createElement("a");
+
+    link.href =
+    canvas.toDataURL("image/png");
+
+    link.download =
+    "preview.png";
+
+    link.click();
+
+};
+
+
+backgroundMode.onchange=function(){
+
+    render();
+
+};
+
+
+
+
+
+
+
+
+
+/*
+ Render Engine
+*/
+
+
+function render(){
+
+
+    canvas.width =
+    canvasW;
+
+
+    canvas.height =
+    canvasH;
+
+
+    ctx.clearRect(
+    0,
+    0,
+    canvasW,
+    canvasH
+    );
+
+
+
+
+    /*
+    Hintergrund
+    */
+
+
+    if(backgroundMode.value==="white"){
+
+
+        ctx.fillStyle="white";
+
+
+        ctx.fillRect(
+        0,
+        0,
+        canvasW,
+        canvasH
+        );
+
+    }
+
+
+
+    if(
+    backgroundMode.value==="image"
+    &&
+    bgImage
+    ){
+
+
+        ctx.drawImage(
+        bgImage,
+        0,
+        0,
+        canvasW,
+        canvasH
+        );
+
+    }
+
+
+
+
+
+
+    /*
+    SVG Layer
+    */
+
+
+    if(svgImage){
+
+
+        let w =
+        svgImage.naturalWidth *
+        scale;
+
+
+        let h =
+        svgImage.naturalHeight *
+        scale;
+
+
+
+        let x=posX;
+
+
+        let y=posY;
+
+
+
+        if(align.value==="center"){
+
+            x +=
+            (canvasW-w)/2;
+
+        }
+
+
+        if(align.value==="right"){
+
+            x +=
+            canvasW-w;
+
+        }
+
+
+        if(verticalAlign.value==="center"){
+
+            y +=
+            (canvasH-h)/2;
+
+        }
+
+
+        if(verticalAlign.value==="bottom"){
+
+            y +=
+            canvasH-h;
+
+        }
+
+
+        ctx.imageSmoothingEnabled=false;
+
+
+        ctx.drawImage(
+        svgImage,
+        x,
+        y,
+        w,
+        h
+        );
+
+
+    }
+
+
+
+
+    status.innerHTML =
+    canvasW+
+    " × "+
+    canvasH+
+    " px";
+
+}
+
+
+
+
+
+
+
+
+
+/*
+ Reset
+*/
+
+
+document
+.getElementById("reset")
+.onclick=function(){
+
+
+    scale=1;
+
+    posX=0;
+
+    posY=0;
+
+
+    scaleSlider.value=1;
+
+    scaleValue.innerHTML="1";
+
+
+    posXInput.value=0;
+
+    posYInput.value=0;
+
+    posXSlider.value=0;
+
+    posYSlider.value=0;
+
+    updatePositionLabels();
+
+
+    align.value="center";
+
+    verticalAlign.value="center";
+
+
+    template.value="original";
+
+
+    if(svgImage){
+
+        canvasW=
+        svgImage.naturalWidth;
+
+        canvasH=
+        svgImage.naturalHeight;
+
+    }
+
+
+    updateSize();
+
+    render();
+
+
+};
+
+
+
+
+
+
+
+
+/*
+ Initial
+*/
+
+
+render();
+
+
+</script>
+
+</body>
+</html>
